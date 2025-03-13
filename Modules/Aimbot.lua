@@ -89,13 +89,19 @@ local function isPlayerVisible(targetPlayer)
 
     local origin = Camera.CFrame.Position
     local destination = targetPart.Position
+    local direction = (destination - origin)
 
     local rayParams = RaycastParams.new()
     rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-    rayParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character}
+    rayParams.FilterDescendantsInstances = {
+        game.Players.LocalPlayer.Character,  -- Prevent self-check
+        targetPlayer.Character               -- Prevent the target itself
+    }
+    rayParams.IgnoreWater = true  -- Avoid false positives with water
 
-    local result = workspace:Raycast(origin, (destination - origin).Unit * (destination - origin).Magnitude, rayParams)
+    local result = workspace:Raycast(origin, direction, rayParams)
 
+    -- Return true if no object is hit, meaning the player is visible
     return result == nil
 end
 
