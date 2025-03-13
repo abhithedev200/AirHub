@@ -76,6 +76,30 @@ local function CancelLock()
 	end
 end
 
+local function isPlayerVisible(targetPlayer)
+    if not Environment.Settings.WallCheck then
+        return true
+    end
+
+    local character = targetPlayer.Character
+    if not character then return false end
+
+    local targetPart = character:FindFirstChild(Environment.Settings.LockPart)
+    if not targetPart then return false end
+
+    local origin = Camera.CFrame.Position
+    local destination = targetPart.Position
+
+    local rayParams = RaycastParams.new()
+    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+    rayParams.FilterDescendantsInstances = {game.Players.LocalPlayer.Character}
+
+    local result = workspace:Raycast(origin, (destination - origin).Unit * (destination - origin).Magnitude, rayParams)
+
+    return result == nil
+end
+
+
 local function GetClosestPlayer()
 	if not Environment.Locked then
 		RequiredDistance = (Environment.FOVSettings.Enabled and Environment.FOVSettings.Amount or 2000)
@@ -84,7 +108,7 @@ local function GetClosestPlayer()
 			if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
 				if Environment.Settings.TeamCheck and v.TeamColor == LocalPlayer.TeamColor then continue end
 				if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
-				if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
+				if not isPlayerVisible(v) then continue end
 
 				local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position); Vector = ConvertVector(Vector)
 				local Distance = (UserInputService:GetMouseLocation() - Vector).Magnitude
