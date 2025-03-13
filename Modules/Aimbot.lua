@@ -114,7 +114,10 @@ local function GetClosestPlayer()
 			if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
 				if Environment.Settings.TeamCheck and v.TeamColor == LocalPlayer.TeamColor then continue end
 				if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
-				if not isPlayerVisible(v) then continue end
+				if not isPlayerVisible(v) then 
+					print("[Debug] Player vis check failed")
+					continue 
+				end
 
 				local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position); Vector = ConvertVector(Vector)
 				local Distance = (UserInputService:GetMouseLocation() - Vector).Magnitude
